@@ -19,7 +19,6 @@
  *	           intended sleep duration.
  *	- Ref(MB): Referenced (Mbytes) during the specified duration.
  *	           This is the working set size metric.
- * Referred from: https://github.com/brendangregg/wss
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -196,12 +195,13 @@ int main(int argc, char *argv[])
 {
 	pid_t pid;
 	double duration, mbytes;
-	static struct timeval ts1, ts2, ts3, ts4;
+	static struct timeval ts1, ts2;
 	unsigned long long set_us, read_us, dur_us, slp_us, est_us;
+
 
 	// options
 	if (argc < 3) {
-		printf("USAGE: wss PID duration(s)\n");
+		printf("USAGE: wss PID duration(s) [num_loops]\n");
 		exit(0);
 	}	
 	pid = atoi(argv[1]);
@@ -210,8 +210,15 @@ int main(int argc, char *argv[])
 		printf("Interval too short. Exiting.\n");
 		return 1;
 	}
-	printf("Watching PID %d page references during %.2f seconds...\n",
-	    pid, duration);
+	int num_loops = 1;
+	if (argc >= 4) {
+		num_loops = atoi(argv[3]);
+	}
+	struct timeval ts3[num_loops], ts4[num_loops];
+	int active_till_now[num_loops];
+
+	printf("Watching PID %d page references during %.2f * %d seconds...\n",
+	    pid, duration, num_loops);
 
 	// set idle flags
 	gettimeofday(&ts1, NULL);
@@ -219,39 +226,46 @@ int main(int argc, char *argv[])
 
 	// sleep
 	gettimeofday(&ts2, NULL);
-	usleep((int)(duration * 1000000));
-	gettimeofday(&ts3, NULL);
+	for (int i = 0; i < num_loops; i++){
+		usleep((int)(duration * 1000000));
+		gettimeofday(ts3 + i, NULL);
 
-	// read idle flags
-	walkmaps(pid, READIDLE);
-	gettimeofday(&ts4, NULL);
+		// read idle flags
+		walkmaps(pid, READIDLE);
+		gettimeofday(ts4 + i, NULL);
+		active_till_now[i] = g_activepages;
+	}
 
 	// calculate times
 	set_us = 1000000 * (ts2.tv_sec - ts1.tv_sec) +
 	    (ts2.tv_usec - ts1.tv_usec);
-	slp_us = 1000000 * (ts3.tv_sec - ts2.tv_sec) +
-	    (ts3.tv_usec - ts2.tv_usec);
-	read_us = 1000000 * (ts4.tv_sec - ts3.tv_sec) +
-	    (ts4.tv_usec - ts3.tv_usec);
-	dur_us = 1000000 * (ts4.tv_sec - ts1.tv_sec) +
-	    (ts4.tv_usec - ts1.tv_usec);
-	est_us = dur_us - (set_us / 2) - (read_us / 2);
 	if (g_debug) {
 		printf("set time  : %.3f s\n", (double)set_us / 1000000);
-		printf("sleep time: %.3f s\n", (double)slp_us / 1000000);
-		printf("read time : %.3f s\n", (double)read_us / 1000000);
-		printf("dur time  : %.3f s\n", (double)dur_us / 1000000);
-		// assume getpagesize() sized pages:
-		printf("referenced: %d pages, %d bytes\n", g_activepages,
-		    g_activepages * getpagesize());
-		printf("walked    : %d pages, %d bytes\n", g_walkedpages,
-		    g_walkedpages * getpagesize());
 	}
-
-	// assume getpagesize() sized pages:
-	mbytes = (g_activepages * getpagesize()) / (1024 * 1024);
 	printf("%-7s %10s\n", "Est(s)", "Ref(MB)");
-	printf("%-7.3f %10.2f\n", (double)est_us / 1000000, mbytes);
+	for (int i = 0; i < num_loops; i++){
+		slp_us = 1000000 * (ts3[i].tv_sec - ts2.tv_sec) +
+			(ts3[i].tv_usec - ts2.tv_usec);
+		read_us = 1000000 * (ts4[i].tv_sec - ts3[i].tv_sec) +
+			(ts4[i].tv_usec - ts3[i].tv_usec);
+		dur_us = 1000000 * (ts4[i].tv_sec - ts1.tv_sec) +
+			(ts4[i].tv_usec - ts1.tv_usec);
+		est_us = dur_us - (read_us / 2);
+		est_us = i == 0 ? est_us - (set_us / 2) : est_us;
+		if (g_debug) {
+			printf("sleep time: %.3f s\n", (double)slp_us / 1000000);
+			printf("read time : %.3f s\n", (double)read_us / 1000000);
+			printf("dur time  : %.3f s\n", (double)dur_us / 1000000);
+			// assume getpagesize() sized pages:
+			printf("referenced: %d pages, %d Kbytes\n", active_till_now[i],
+				active_till_now[i] * getpagesize());
+			printf("walked    : %d pages, %d Kbytes\n", g_walkedpages,
+				g_walkedpages * getpagesize());
+		}
+		// assume getpagesize() sized pages:
+		mbytes = (active_till_now[i] * getpagesize()) / (1024 * 1024);
+		printf("%-7.3f %10.2f\n", (double)est_us / 1000000, mbytes);
+	}
 
 	return 0;
 }
