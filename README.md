@@ -4,10 +4,11 @@
 
 ### Instructions to reproduce experiment
 
-1. Compile `g++ test1/2.cpp -o test`
-2. Execute `sudo ./test &`
+1. Compile `g++ test1/2.cpp -o test1/2`
+2. Execute `sudo ./test1/2 &`
 3. To reproduce first approach, run `sudo ./wss.pl [pid] [polling interval]`
 4. To reproduce second approach, compile `gcc wss1.c` and run `sudo ./a.out [pid] [polling interval] [number of time steps to cummulate]`
+5. To generate plots, redirect output to appropriate filenames as present in results folder and then run `script.sh [test1/test2]` and then run plotgen.py.
 
 
 #### References: <br>
