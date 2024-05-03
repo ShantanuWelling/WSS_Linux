@@ -17,7 +17,7 @@ int main(){
 		a[(i+4)%10000]=*new_int_ptr4;
 		sleep(0.0001);
 		if(i==INT_MAX && j!=n) {i=0; j++;}
-		else if(i==INT_MAX && j==n) break;
-	}
+		else if(i==INT_MAX && j==n) break;	
+}
 	return 0;
 }

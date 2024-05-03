@@ -50,6 +50,7 @@
 # for dealing with the duration inflation in a different way: --pausetarget,
 # which will pause the target process (SIGSTOP) and only let it run for the
 # duration of the measurements (using: SIGCONT -> measure -> SIGSTOP). 
+# Referred from: https://github.com/brendangregg/wss
 
 use strict;
 use Getopt::Long;

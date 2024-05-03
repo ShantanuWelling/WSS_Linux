@@ -15,6 +15,7 @@
  * WARNING: This tool sets and reads system and process page flags, which can
  * take over one second of CPU time, during which application may experience
  * slightly higher latency (eg, 5%). Consider these overheads. 
+ * Referred from: https://github.com/brendangregg/wss
  */
 #include <stdio.h>
 #include <stdlib.h>

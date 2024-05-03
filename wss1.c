@@ -19,6 +19,7 @@
  *	           intended sleep duration.
  *	- Ref(MB): Referenced (Mbytes) during the specified duration.
  *	           This is the working set size metric.
+ * Referred from: https://github.com/brendangregg/wss
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -241,16 +242,16 @@ int main(int argc, char *argv[])
 		printf("read time : %.3f s\n", (double)read_us / 1000000);
 		printf("dur time  : %.3f s\n", (double)dur_us / 1000000);
 		// assume getpagesize() sized pages:
-		printf("referenced: %d pages, %d Kbytes\n", g_activepages,
+		printf("referenced: %d pages, %d bytes\n", g_activepages,
 		    g_activepages * getpagesize());
-		printf("walked    : %d pages, %d Kbytes\n", g_walkedpages,
+		printf("walked    : %d pages, %d bytes\n", g_walkedpages,
 		    g_walkedpages * getpagesize());
 	}
 
 	// assume getpagesize() sized pages:
 	mbytes = (g_activepages * getpagesize()) / (1024 * 1024);
 	printf("%-7s %10s\n", "Est(s)", "Ref(MB)");
-	printf("%-7.3f %10.2f", (double)est_us / 1000000, mbytes);
+	printf("%-7.3f %10.2f\n", (double)est_us / 1000000, mbytes);
 
 	return 0;
 }
