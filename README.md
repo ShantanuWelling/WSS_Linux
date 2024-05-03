@@ -1,5 +1,14 @@
 ## Working Set Size Estimation via Linux Kernel
+
 ### CS695: Virtualization and Cloud Computing
+
+### Instructions to reproduce experiment
+
+1. Compile `g++ test1/2.cpp -o test`
+2. Execute `sudo ./test &`
+3. To reproduce first approach, run `sudo ./wss.pl [pid] [polling interval]`
+4. To reproduce second approach, compile `gcc wss1.c` and run `sudo ./a.out [pid] [polling interval] [number of time steps to cummulate]`
+
 
 #### References: <br>
 1. https://www.kernel.org/doc/Documentation/vm/idle_page_tracking.txt
