@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-    int arrsize=30;
+    int arrsize=10;
     int a[1024*arrsize];
     sleep(10);
     for(int i=0; i<arrsize; i++){
@@ -14,7 +14,7 @@ int main(){
         system("sudo sysctl -w vm.drop_caches=3 > /dev/null 2>&1");
         a[i*1024]=i;
         // sleep(2);
-        usleep(50000);
+        usleep(10000);
         // cout << "i: " << i << endl;
         if(i==arrsize-1) i=0;
     }
