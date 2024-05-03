@@ -51,7 +51,7 @@ enum {
 };
 
 // globals
-int g_debug = 1;		// 1 == some, 2 == verbose
+int g_debug = 0;		// 1 == some, 2 == verbose
 int g_activepages = 0;
 int g_walkedpages = 0;
 
@@ -234,6 +234,7 @@ int main(int argc, char *argv[])
 		walkmaps(pid, READIDLE);
 		gettimeofday(ts4 + i, NULL);
 		active_till_now[i] = g_activepages;
+		g_activepages = 0;
 	}
 
 	// calculate times
@@ -242,7 +243,7 @@ int main(int argc, char *argv[])
 	if (g_debug) {
 		printf("set time  : %.3f s\n", (double)set_us / 1000000);
 	}
-	printf("%-7s %10s\n", "Est(s)", "Ref(MB)");
+	printf("%-7s %10s\n", "Est(s)", "Ref(KB)");
 	for (int i = 0; i < num_loops; i++){
 		slp_us = 1000000 * (ts3[i].tv_sec - ts2.tv_sec) +
 			(ts3[i].tv_usec - ts2.tv_usec);
@@ -257,13 +258,13 @@ int main(int argc, char *argv[])
 			printf("read time : %.3f s\n", (double)read_us / 1000000);
 			printf("dur time  : %.3f s\n", (double)dur_us / 1000000);
 			// assume getpagesize() sized pages:
-			printf("referenced: %d pages, %d Kbytes\n", active_till_now[i],
+			printf("referenced: %d pages, %d bytes\n", active_till_now[i],
 				active_till_now[i] * getpagesize());
-			printf("walked    : %d pages, %d Kbytes\n", g_walkedpages,
+			printf("walked    : %d pages, %d bytes\n", g_walkedpages,
 				g_walkedpages * getpagesize());
 		}
 		// assume getpagesize() sized pages:
-		mbytes = (active_till_now[i] * getpagesize()) / (1024 * 1024);
+		mbytes = (active_till_now[i] * getpagesize()) / (1024);
 		printf("%-7.3f %10.2f\n", (double)est_us / 1000000, mbytes);
 	}
 

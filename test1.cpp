@@ -15,7 +15,7 @@ int main(){
 		a[(i+2)%10000]=*new_int_ptr2;
 		a[(i+3)%10000]=*new_int_ptr3;
 		a[(i+4)%10000]=*new_int_ptr4;
-		sleep(0.0001);
+		usleep(1000);
 		if(i==INT_MAX && j!=n) {i=0; j++;}
 		else if(i==INT_MAX && j==n) break;	
 }

@@ -145,7 +145,7 @@ if ($profile) {
 	printf "Watching PID $pid page references during $duration seconds...\n";
 }
 printf "%-7s %-7s ", "Slp(s)", "Dur(s)" if $moretimes;
-printf "%-7s %10s %10s %10s\n", "Est(s)", "RSS(MB)", "PSS(MB)", "Ref(MB)";
+printf "%-7s %10s %10s %10s\n", "Est(s)", "RSS(KB)", "PSS(KB)", "Ref(KB)";
 
 ### main
 my ($rss, $pss, $referenced);
@@ -232,7 +232,7 @@ while (1) {
 	# output
 	printf "%-7.3f %-7.3f ", $sleeptime, $durtime if $moretimes;
 	printf "%-7.3f %10.2f %10.2f %10.2f\n", $esttime,
-	    $rss / 1024, $pss / 1024, $referenced / 1024;
+	    $rss , $pss, $referenced;
 
 	# snopshot sleeps
 	if ($snapshot != -1) {
